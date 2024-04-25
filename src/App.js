@@ -1,25 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+// App.js
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import ListenedPage from './ListenedPage';
+import ToListenPage from './ToListenPage';
+import NavigationMenu from './NavigationMenu';
+
+import 'bootstrap/dist/css/bootstrap.min.css';
+import AddAlbumForm from "./AddAlbumForm";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    return (
+        <Router>
+            <div>
+                <NavigationMenu />
+                <Routes>
+                    <Route path="/listened" element={<ListenedPage />} />
+                    <Route path="/to-listen" element={<ToListenPage />} />
+                    <Route path="/add-album" element={<AddAlbumForm />} /> {/* Додайте новий маршрут */}
+                </Routes>
+            </div>
+        </Router>
+    );
 }
 
 export default App;
