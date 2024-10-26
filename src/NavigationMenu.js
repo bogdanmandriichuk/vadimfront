@@ -1,11 +1,12 @@
+// NavigationMenu.js
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import Login from './Login';
 
-function NavigationMenu() {
+function NavigationMenu({ isAuthenticated, onAuthentication }) {
     const [showLoginModal, setShowLoginModal] = useState(false);
-    const [authenticated, setAuthenticated] = useState(false); // Додано статус авторизації
 
     const handleShowLoginModal = () => {
         setShowLoginModal(true);
@@ -19,7 +20,9 @@ function NavigationMenu() {
         // Перевірка секретного ключа та авторизація
         // Якщо авторизація успішна, встановлюємо статус авторизації в true
         if (password === '1111') { // Замініть 'your_secret_key' на ваш секретний ключ
-            setAuthenticated(true);
+            onAuthentication(true);
+            setShowLoginModal(false);
+            console.log('Статус автентифікації:', true);
         }
     };
 
@@ -38,19 +41,13 @@ function NavigationMenu() {
                         <li className="nav-item">
                             <Link className="nav-link" to="/to-listen">Те, що треба прослухати</Link>
                         </li>
-                        {authenticated && ( // Відображаємо "Додати альбом" тільки для авторизованих користувачів
+                        {isAuthenticated && ( // Відображаємо "Додати альбом" тільки для авторизованих користувачів
                             <li className="nav-item">
                                 <Link className="nav-link" to="/add-album">Додати альбом</Link>
                             </li>
                         )}
                     </ul>
-                    <ul className="navbar-nav">
-                        <li className="nav-item">
-                            <Button variant="outline-primary" onClick={handleShowLoginModal}>
-                                Увійти
-                            </Button>
-                        </li>
-                    </ul>
+
                 </div>
             </div>
             <Login show={showLoginModal} handleClose={handleCloseLoginModal} handleLogin={handleLogin} />

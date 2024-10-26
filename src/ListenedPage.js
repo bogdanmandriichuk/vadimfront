@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Card, Form } from 'react-bootstrap';
+import { Container, Card, Form, Button } from 'react-bootstrap';
+import { Link } from "react-router-dom";
 
-const ListenedPage = () => {
+const ListenedPage = ({ isAuthenticated }) => {
     const [albums, setAlbums] = useState([]);
     const [selectedSortOption, setSelectedSortOption] = useState('album');
     const [searchArtist, setSearchArtist] = useState('');
@@ -41,18 +42,45 @@ const ListenedPage = () => {
         setSearchYear(e.target.value);
     };
 
+    const handleDeleteAlbum = (id) => {
+        if (isAuthenticated) {
+            axios.delete(`http://localhost:3001/api/albums/${id}`, {
+                headers: {
+                    Authorization: '1111' // Замініть на свій секретний ключ
+                }
+            })
+                .then(response => {
+                    setAlbums(albums.filter(album => album.id !== id));
+                })
+                .catch(error => {
+                    console.error('Помилка видалення альбому:', error);
+                });
+        } else {
+            console.log('Вибачте, ви повинні увійти, щоб видалити альбом.');
+        }
+    };
+
+    const handleMoveToToListen = (albumId) => {
+        if (isAuthenticated) {
+            axios.put(`http://localhost:3001/api/move-to-to-listen/${albumId}`, null, {
+                headers: {
+                    Authorization: "1111" // Замініть на ваш авторизаційний токен
+                }
+            })
+                .then(response => {
+                    setAlbums(albums.filter(album => album.id !== albumId));
+                })
+                .catch(error => {
+                    console.error('Помилка переміщення альбома:', error);
+                });
+        } else {
+            console.log('Вибачте, ви повинні увійти, щоб перемістити альбом.');
+        }
+    };
+
     return (
         <Container>
-            <h1 className="mt-4 mb-4">Те, що прослухав</h1>
-            {/*<Form.Group controlId="sortSelect">*/}
-            {/*    <Form.Label>Сортувати за:</Form.Label>*/}
-            {/*    <Form.Control as="select" value={selectedSortOption} onChange={handleSortChange}>*/}
-            {/*        <option value="album">Назва альбому</option>*/}
-            {/*        <option value="artist">Виконавець</option>*/}
-            {/*        <option value="year">Рік</option>*/}
-            {/*        <option value="country">Країна</option>*/}
-            {/*    </Form.Control>*/}
-            {/*</Form.Group>*/}
+            <h1 className="mt-4 mb-4">Те, що вже прослухав</h1>
             <Form.Group>
                 <Form.Label>Пошук за виконавцем:</Form.Label>
                 <Form.Control type="text" value={searchArtist} onChange={handleSearchArtistChange} />
@@ -72,15 +100,27 @@ const ListenedPage = () => {
             <div className="d-flex flex-wrap">
                 {albums.map(album => (
                     <Card key={album.id} style={{ width: '18rem', margin: '10px' }}>
-                        <Card.Img variant="top" src={album.cover} alt="Обкладинка" />
+                        <Link to={`/album/${album.id}`}>
+                            <Card.Img variant="top" src={album.cover} alt="Обкладинка" />
+                            <Card.Body>
+                                <Card.Title>{album.album}</Card.Title>
+                                <Card.Text>
+                                    <strong>Виконавець:</strong> {album.artist}
+                                </Card.Text>
+                            </Card.Body>
+                        </Link>
                         <Card.Body>
-                            <Card.Title>{album.album}</Card.Title>
                             <Card.Text>
-                                <strong>Виконавець:</strong> {album.artist}<br />
                                 <strong>Країна:</strong> {album.country}<br />
                                 <strong>Рік:</strong> {album.year}<br />
                                 <a href={album.youtube_link} target="_blank" rel="noopener noreferrer">YouTube</a>
                             </Card.Text>
+                            {isAuthenticated && (
+                                <div className="d-flex justify-content-between align-items-center mt-3">
+                                    <Button variant="danger" onClick={() => handleDeleteAlbum(album.id)}>Видалити</Button>
+                                    <Button variant="primary" onClick={() => handleMoveToToListen(album.id)}>Слухати ще</Button>
+                                </div>
+                            )}
                         </Card.Body>
                     </Card>
                 ))}

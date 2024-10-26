@@ -1,14 +1,24 @@
+// Login.js
 import React, { useState } from 'react';
 import { Button, Modal, Form, Alert } from 'react-bootstrap';
 import axios from 'axios';
 
-function Login({ show, handleClose, handleLogin }) {
+function Login({ handleLogin }) {
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => {
+        setShow(false);
+        setPassword('');
+        setErrorMessage('');
+    };
+
+    const handleShow = () => setShow(true);
 
     const handlePasswordChange = (e) => {
         setPassword(e.target.value);
-        setErrorMessage(''); // Очищення попередньої помилки при зміні пароля
+        setErrorMessage('');
     };
 
     const handleLoginClick = () => {
@@ -20,7 +30,7 @@ function Login({ show, handleClose, handleLogin }) {
             .then(response => {
                 if (response.status === 200) {
                     handleLogin(password);
-                    setPassword('');
+                    handleClose();
                 }
             })
             .catch(error => {
@@ -34,26 +44,32 @@ function Login({ show, handleClose, handleLogin }) {
     };
 
     return (
-        <Modal show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
-                <Modal.Title>Логінізація</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
-                <Form.Group controlId="password">
-                    <Form.Label>Секретний ключ</Form.Label>
-                    <Form.Control type="password" value={password} onChange={handlePasswordChange} />
-                </Form.Group>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
-                    Закрити
-                </Button>
-                <Button variant="primary" onClick={handleLoginClick}>
-                    Увійти
-                </Button>
-            </Modal.Footer>
-        </Modal>
+        <>
+            <Button variant="primary" onClick={handleShow}>
+                Увійти
+            </Button>
+
+            <Modal show={show} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Логінізація</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
+                    <Form.Group controlId="password">
+                        <Form.Label>Секретний ключ</Form.Label>
+                        <Form.Control type="password" value={password} onChange={handlePasswordChange} />
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Закрити
+                    </Button>
+                    <Button variant="primary" onClick={handleLoginClick}>
+                        Увійти
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        </>
     );
 }
 
