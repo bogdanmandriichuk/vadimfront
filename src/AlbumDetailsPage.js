@@ -25,7 +25,7 @@ const AlbumDetailsPage = ({ isAuthenticated }) => {
     }, [albumId]);
 
     const fetchAlbumDetails = () => {
-        axios.get(`http://localhost:3001/api/albums/${albumId}`)
+        axios.get(`http://localhost:3002/api/albums/${albumId}`)
             .then(response => {
                 setAlbumData(response.data);
                 setSongList(response.data.songs || []);
@@ -66,7 +66,7 @@ const AlbumDetailsPage = ({ isAuthenticated }) => {
         }
 
         const updatedAlbumData = { ...albumData, songs: songList, description, youtube_link: youtubeLink };
-        axios.put(`http://localhost:3001/api/albums/${albumId}`, updatedAlbumData, {
+        axios.put(`http://localhost:3002/api/albums/${albumId}`, updatedAlbumData, {
             headers: {
                 Authorization: '1111' // Ensure this matches your secretKey
             }

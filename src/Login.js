@@ -22,7 +22,7 @@ function Login({ handleLogin }) {
     };
 
     const handleLoginClick = () => {
-        axios.post('http://localhost:3001/api/login', { password: password }, {
+        axios.post('http://localhost:3002/api/login', { password: password }, {
             headers: {
                 'Content-Type': 'application/json'
             }

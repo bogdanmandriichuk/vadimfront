@@ -25,7 +25,7 @@ function AddAlbumForm() {
         formData.append('listened', listened);
         formData.append('cover', coverFile);
 
-        axios.post('http://localhost:3001/api/albums', formData, {
+        axios.post('http://localhost:3002/api/albums', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
                 'Authorization': '1111' // Ваш секретний ключ

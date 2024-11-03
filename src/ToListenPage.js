@@ -16,7 +16,7 @@ const ToListenPage = ({ isAuthenticated }) => {
     }, [selectedSortOption, searchArtist, searchAlbum, searchCountry, searchYear]);
 
     const fetchToListenAlbums = () => {
-        axios.get(`http://localhost:3001/api/albums?type=to-listen&sort=${selectedSortOption}&searchArtist=${searchArtist}&searchAlbum=${searchAlbum}&searchCountry=${searchCountry}&searchYear=${searchYear}`)
+        axios.get(`http://localhost:3002/api/albums?type=to-listen&sort=${selectedSortOption}&searchArtist=${searchArtist}&searchAlbum=${searchAlbum}&searchCountry=${searchCountry}&searchYear=${searchYear}`)
             .then(response => {
                 setAlbums(response.data);
             })
@@ -44,7 +44,7 @@ const ToListenPage = ({ isAuthenticated }) => {
 
     const handleDeleteAlbum = (id) => {
         if (isAuthenticated) {
-            axios.delete(`http://localhost:3001/api/albums/${id}`, {
+            axios.delete(`http://localhost:3002/api/albums/${id}`, {
                 headers: {
                     Authorization: '1111' // Замініть на свій секретний ключ
                 }
@@ -62,7 +62,7 @@ const ToListenPage = ({ isAuthenticated }) => {
 
     const handleMoveToListened = (albumId) => {
         if (isAuthenticated) {
-            axios.put(`http://localhost:3001/api/move-to-listened/${albumId}`, null, {
+            axios.put(`http://localhost:3002/api/move-to-listened/${albumId}`, null, {
                 headers: {
                     Authorization: "1111" // Замініть на свій секретний ключ
                 }
