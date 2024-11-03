@@ -4,18 +4,20 @@ import { Container, Card, Form, Button, Alert } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import { FaEdit } from 'react-icons/fa';
 
-const AlbumDetailsPage = () => {
+const AlbumDetailsPage = ({ isAuthenticated }) => {
     const { id: albumId } = useParams();
     const [albumData, setAlbumData] = useState(null);
     const [songList, setSongList] = useState([]);
     const [description, setDescription] = useState('');
+    const [youtubeLink, setYoutubeLink] = useState('');  // Додаємо стан для youtube_link
     const [error, setError] = useState('');
     const [newSong, setNewSong] = useState('');
     const [isEditing, setIsEditing] = useState({
         artist: false,
-        album: false, // Додаємо поле для редагування назви альбому
+        album: false,
         country: false,
         year: false,
+        youtube_link: false,  // Додаємо стан редагування для youtube_link
     });
 
     useEffect(() => {
@@ -28,6 +30,7 @@ const AlbumDetailsPage = () => {
                 setAlbumData(response.data);
                 setSongList(response.data.songs || []);
                 setDescription(response.data.description || '');
+                setYoutubeLink(response.data.youtube_link || '');  // Завантажуємо youtube_link
             })
             .catch(error => {
                 console.error('Помилка отримання даних:', error);
@@ -57,7 +60,12 @@ const AlbumDetailsPage = () => {
     };
 
     const handleSaveChanges = () => {
-        const updatedAlbumData = { ...albumData, songs: songList, description };
+        if (!isAuthenticated) {
+            setError('Вам потрібно авторизуватися для редагування альбому.');
+            return;
+        }
+
+        const updatedAlbumData = { ...albumData, songs: songList, description, youtube_link: youtubeLink };
         axios.put(`http://localhost:3001/api/albums/${albumId}`, updatedAlbumData, {
             headers: {
                 Authorization: '1111' // Ensure this matches your secretKey
@@ -65,6 +73,8 @@ const AlbumDetailsPage = () => {
         })
             .then(response => {
                 console.log('Дані про альбом успішно оновлено:', response.data);
+                fetchAlbumDetails();
+                setError(''); // Очищуємо попередні помилки
             })
             .catch(error => {
                 console.error('Помилка збереження змін:', error);
@@ -75,6 +85,9 @@ const AlbumDetailsPage = () => {
     if (!albumData) {
         return <div>Loading...</div>;
     }
+
+    // Generate the YouTube search link based on artist and album name
+    const youtubeSearchLink = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${albumData.artist} ${albumData.album}`)}`;
 
     return (
         <Container>
@@ -88,7 +101,9 @@ const AlbumDetailsPage = () => {
                 ) : (
                     albumData.album
                 )}
-                <FaEdit onClick={() => toggleEdit('album')} style={{ cursor: 'pointer', marginLeft: '8px' }} />
+                {isAuthenticated && (
+                    <FaEdit onClick={() => toggleEdit('album')} style={{ cursor: 'pointer', marginLeft: '8px' }} />
+                )}
             </h1>
             <Card style={{ width: '18rem', margin: '10px' }}>
                 <Card.Img variant="top" src={albumData.cover} alt="Обкладинка" />
@@ -105,7 +120,10 @@ const AlbumDetailsPage = () => {
                         ) : (
                             <span>{albumData.artist}</span>
                         )}
-                        <FaEdit onClick={() => toggleEdit('artist')} style={{ cursor: 'pointer', marginLeft: '8px' }} /><br />
+                        {isAuthenticated && (
+                            <FaEdit onClick={() => toggleEdit('artist')} style={{ cursor: 'pointer', marginLeft: '8px' }} />
+                        )}
+                        <br />
 
                         <strong>Країна:</strong>
                         {isEditing.country ? (
@@ -117,7 +135,10 @@ const AlbumDetailsPage = () => {
                         ) : (
                             <span>{albumData.country}</span>
                         )}
-                        <FaEdit onClick={() => toggleEdit('country')} style={{ cursor: 'pointer', marginLeft: '8px' }} /><br />
+                        {isAuthenticated && (
+                            <FaEdit onClick={() => toggleEdit('country')} style={{ cursor: 'pointer', marginLeft: '8px' }} />
+                        )}
+                        <br />
 
                         <strong>Рік:</strong>
                         {isEditing.year ? (
@@ -129,24 +150,41 @@ const AlbumDetailsPage = () => {
                         ) : (
                             <span>{albumData.year}</span>
                         )}
-                        <FaEdit onClick={() => toggleEdit('year')} style={{ cursor: 'pointer', marginLeft: '8px' }} /><br />
+                        {isAuthenticated && (
+                            <FaEdit onClick={() => toggleEdit('year')} style={{ cursor: 'pointer', marginLeft: '8px' }} />
+                        )}
+                        <br />
+
+                        <strong>YouTube посилання:</strong>
+                        {isEditing.youtube_link ? (
+                            <Form.Control
+                                type="text"
+                                value={youtubeLink}
+                                onChange={(e) => setYoutubeLink(e.target.value)}
+                            />
+                        ) : (
+                            <a href={youtubeLink} target="_blank" rel="noopener noreferrer">
+                                {youtubeLink || 'Додайте посилання'}
+                            </a>
+                        )}
+                        {isAuthenticated && (
+                            <FaEdit onClick={() => toggleEdit('youtube_link')} style={{ cursor: 'pointer', marginLeft: '8px' }} />
+                        )}
+                        <br />
 
                         <strong>Пісні:</strong><br />
                         {songList.map((song, index) => (
-                            <Form.Control key={index} type="text" value={song} onChange={(e) => handleSongChange(index, e.target.value)} />
+                            <Form.Control key={index} type="text" value={song} onChange={(e) => handleSongChange(index, e.target.value)} style={{ marginBottom: '5px' }} />
                         ))}
-                        <Form.Control
-                            type="text"
-                            placeholder="Нова пісня"
-                            value={newSong}
-                            onChange={(e) => setNewSong(e.target.value)}
-                        />
-                        <Button variant="primary" onClick={handleAddSong}>Додати пісню</Button>
+                        <Form.Control type="text" placeholder="Додати нову пісню" value={newSong} onChange={(e) => setNewSong(e.target.value)} />
+                        <Button variant="primary" onClick={handleAddSong}>Додати пісню</Button><br />
 
-                        <strong style={{ display: 'block', marginTop: '20px' }}>Опис:</strong>
-                        <Form.Control as="textarea" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
+                        <strong>Опис:</strong><br />
+                        <Form.Control as="textarea" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} /><br />
                     </Card.Text>
-                    <Button variant="primary" onClick={handleSaveChanges}>Зберегти зміни</Button>
+                    <Button variant="success" onClick={handleSaveChanges}>
+                        {isAuthenticated ? 'Зберегти зміни' : 'Авторизуйтесь для редагування'}
+                    </Button>
                 </Card.Body>
             </Card>
             {error && <Alert variant="danger">{error}</Alert>}

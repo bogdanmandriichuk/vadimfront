@@ -8,27 +8,27 @@ function AddAlbumForm() {
     const [artist, setArtist] = useState('');
     const [album, setAlbum] = useState('');
     const [country, setCountry] = useState('');
-    const [youtubeLink, setYoutubeLink] = useState('');
+    const [youtubeLink, setYoutubeLink] = useState(''); // Стан для YouTube посилання
     const [year, setYear] = useState(null);
-    const [listened, setListened] = useState('');
+    const [listened, setListened] = useState('1'); // Встановлюємо значення за замовчуванням
     const [coverFile, setCoverFile] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
 
     const handleAddAlbum = () => {
+        console.log('YouTube Link:', youtubeLink);
         const formData = new FormData();
         formData.append('artist', artist);
         formData.append('album', album);
         formData.append('country', country);
-        formData.append('youtube_link', youtubeLink);
+        formData.append('youtube_link', youtubeLink ? youtubeLink : ''); // Додаємо YouTube посилання
         formData.append('year', year ? year.getFullYear() : '');
         formData.append('listened', listened);
         formData.append('cover', coverFile);
-        formData.append('action', 'add');
 
         axios.post('http://localhost:3001/api/albums', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
-                'Authorization': '1111' // Додайте сюди ваш секретний ключ
+                'Authorization': '1111' // Ваш секретний ключ
             }
         })
             .then(response => {
@@ -37,9 +37,9 @@ function AddAlbumForm() {
                 setArtist('');
                 setAlbum('');
                 setCountry('');
-                setYoutubeLink('');
+                setYoutubeLink(''); // Очищуємо YouTube посилання
                 setYear(null);
-                setListened('');
+                setListened('1'); // Встановлюємо значення за замовчуванням
                 setCoverFile(null);
                 setErrorMessage('');
             })
@@ -76,7 +76,12 @@ function AddAlbumForm() {
                 </Form.Group>
                 <Form.Group controlId="youtubeLink">
                     <Form.Label>Посилання на YouTube</Form.Label>
-                    <Form.Control type="text" value={youtubeLink} onChange={e => setYoutubeLink(e.target.value)} />
+                    <Form.Control
+                        type="text"
+                        value={youtubeLink}
+                        onChange={e => setYoutubeLink(e.target.value)} // Оновлення стану
+                        placeholder="Введіть YouTube посилання"
+                    />
                 </Form.Group>
                 <Form.Group controlId="year">
                     <Form.Label>Рік</Form.Label>
@@ -108,4 +113,3 @@ function AddAlbumForm() {
 }
 
 export default AddAlbumForm;
-

@@ -25,7 +25,7 @@ function App() {
                     <Route path="/listened" element={<ListenedPage isAuthenticated={authenticated} />} />
                     <Route path="/to-listen" element={<ToListenPage isAuthenticated={authenticated} />} />
                     <Route path="/add-album" element={<AddAlbumForm />} /> {/* Додайте новий маршрут */}
-                    <Route path="/album/:id" element={<AlbumDetailsPage />} />
+                    <Route path="/album/:id" element={<AlbumDetailsPage isAuthenticated={authenticated}/>} />
 
 
                 </Routes>
